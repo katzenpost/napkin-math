@@ -6,7 +6,32 @@ Before we can do an Enrico Fermi style estimation in the style of
 statistics. This effort is currently underway.
 
 
-## noise
+### network latency
+
+| average latency between mix nodes |
+| :---:                             |
+| 78 milliseconds                   |
+
+Let's assume a 78 millisecond average latency between mix nodes of the mix network.
+
+
+### poisson mix latency
+
+| Symbol | Description |
+| :---   | ---:        |
+| LambdaP / λP | client payload traffic rate |
+| LambdaD / λD | client drop decoy traffic rate |
+| LambdaL / λL | client loop decoy traffic rate |
+| Mu / μ  | the mean delay at each mix |
+| LambdaM | mix node loop decoy traffic rate |
+
+| Mu / μ | average latency per hop | avg. latency for 5 hops |
+| 0.001 | 1s | 5s |
+| 0.002 | 487ms | 2.4s |
+| 0.0005 | 1.925s | 9.5s |
+
+
+### noise latency
 
 | Noise protocol | nanoseconds/op |
 | :---           |  ---:          |
@@ -23,7 +48,7 @@ See our specification for more information:
 * Noise base wire protocol https://github.com/katzenpost/katzenpost/blob/main/docs/specs/wire-protocol.rst
 
 
-### sphinx
+### sphinx latency
 
 | Primitive | Sphinx type | nanoseconds/op |
 | :---      |  :---:      |     ---:       |

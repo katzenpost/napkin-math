@@ -1,9 +1,8 @@
 
 # napkin math
 
-Before we can do an Enrico Fermi style estimation in the style of
-"How many piano tuners are in Chicago?"  we first have to collect some
-statistics. This effort is currently underway.
+---
+
 
 
 ### network latency
@@ -17,6 +16,9 @@ Let's assume a 78 millisecond average latency between mix nodes of the mix netwo
 
 ### poisson mix latency
 
+Sampling from poisson distributions happens for these various symbols mentioned
+in the Loopix paper:
+
 | Symbol | Description |
 | :---   | ---:        |
 | LambdaP / λP | client payload traffic rate |
@@ -25,10 +27,14 @@ Let's assume a 78 millisecond average latency between mix nodes of the mix netwo
 | Mu / μ  | the mean delay at each mix |
 | LambdaM | mix node loop decoy traffic rate |
 
-| Mu / μ | average latency per hop | avg. latency for 5 hops |
-| 0.001 | 1s | 5s |
-| 0.002 | 487ms | 2.4s |
-| 0.0005 | 1.925s | 9.5s |
+
+However for our calculation of latecy, all we care about is Mu:
+
+| Mu | average latency per hop | avgerage latency per 5 hops | rtt (10 hops) |
+| :---   | :---:                   | :---: | ---:                                |
+| 0.001 | 1s | 5s | 10s |
+| 0.002 | 487ms | 2.4s | 4.8s |
+| 0.0005 | 1.925s | 9.5s | 19s |
 
 
 ### noise latency

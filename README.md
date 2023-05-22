@@ -41,8 +41,8 @@ However for our calculation of latecy, all we care about is Mu:
 
 | Noise protocol | nanoseconds/op |
 | :---           |  ---:          |
-| Noise_XX_25519_ChaChaPoly_BLAKE2s | 28816 |
-| Noise_pqXX_Kyber768X25519_ChaChaPoly_BLAKE2s | 94828 |
+| Noise_XX_25519_ChaChaPoly_BLAKE2s | 271939 |
+| Noise_pqXX_Kyber768X25519_ChaChaPoly_BLAKE2s | 843680 |
 
 
 * This test only performs cryptographic operations. Our noise
@@ -58,16 +58,17 @@ See our specification for more information:
 
 | Primitive | Sphinx type | nanoseconds/op |
 | :---      |  :---:      |     ---:       |
-| X25519 | NIKE | 18088 |
-| Kyber512 | KEM | 5063 |
-| Kyber768 | KEM | 6863 |
-| Kyber1024 | KEM | 8380 |
-| Kyber768 X25519 Hybrid | KEM | 9542 |
-| CTIDH512 | NIKE | 42124496 |
-| CTIDH1024 | NIKE | 414560499 |
-| CTIDH2048 | NIKE | 2132092762 |
+| X25519 | KEM | 80093 |
+| X25519 | NIKE | 160233 |
+| Kyber512 | KEM | 43758 |
+| Kyber768 | KEM | 57049 |
+| Kyber1024 | KEM | 72173 |
+| Kyber768 X25519 Hybrid | KEM | 87816 |
+| CTIDH512 | NIKE | 336995975 |
+| CTIDH1024 | NIKE | 18599579037 |
+| CTIDH2048 | NIKE | 17056742100 |
 | CTIDH512 | KEM |  |
-| CTIDH1024 | KEM |  |
+| CTIDH1024 | KEM | 11408217346 |
 | CTIDH2048 | KEM |  |
 
 * NIKE Sphinx is slower than KEM Sphinx because NIKE Sphinx must perform

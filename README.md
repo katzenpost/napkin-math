@@ -3,9 +3,9 @@
 
 ---
 
+# latency
 
-
-### network latency
+## network latency
 
 | average latency between mix nodes |
 | :---:                             |
@@ -14,7 +14,7 @@
 Let's assume a 78 millisecond average latency between mix nodes of the mix network.
 
 
-### poisson mix latency
+## poisson mix latency
 
 Sampling from poisson distributions happens for these various symbols mentioned
 in the Loopix paper:
@@ -37,7 +37,7 @@ However for our calculation of latecy, all we care about is Mu:
 | 0.0005 | 1.925s | 9.5s | 19s |
 
 
-### noise latency
+## noise latency
 
 | Noise protocol | nanoseconds/op | seconds/op |
 | :---           |  ---:          | ---:       |
@@ -54,7 +54,7 @@ See our specification for more information:
 * Noise base wire protocol https://github.com/katzenpost/katzenpost/blob/main/docs/specs/wire-protocol.rst
 
 
-### sphinx latency
+## sphinx latency
 
 | Primitive | Sphinx type | nanoseconds/op | seconds/op |
 | :---      |  :---:      |     ---:       | ---:       |
@@ -63,7 +63,7 @@ See our specification for more information:
 | Kyber512 | KEM | 43758 | 4.3758e-5 |
 | Kyber768 | KEM | 57049 | 5.7049e-5 |
 | Kyber1024 | KEM | 72173 | 7.2173e-5 |
-| Kyber768 X25519 Hybrid | KEM | 87816 | 8.7816e-5 |
+| **Kyber768 X25519 Hybrid** | KEM | **87816** | 8.7816e-5 |
 | CTIDH512 | NIKE | 336995975 | 0.336995975 |
 | CTIDH1024 | NIKE | 18599579037 | 18.599579037 |
 | CTIDH2048 | NIKE | 17056742100 | 17.0567421 |
@@ -82,3 +82,70 @@ See our specifications for more information:
 
 * NIKE Sphinx https://github.com/katzenpost/katzenpost/blob/main/docs/specs/sphinx.rst
 * KEM Sphinx https://github.com/katzenpost/katzenpost/blob/main/docs/specs/kemsphinx.rst
+
+<BR><BR>
+
+# bandwidth overhead
+
+## Sphinx overhead
+
+| Primitive | Sphinx Type | Header Size | Num Hops |
+| :---    |    :----:   |     ---:    | ---: |
+| X25519  |  NIKE       |   476     | 5 |
+| X25519  |  NIKE       |   886     | 10 |
+| Kyber512|  KEM        |    5052   | 5 | 
+| Kyber512|  KEM        |    9302   | 10 | 
+| Kyber768|  KEM        |    6972      | 5|
+| Kyber768|  KEM        |    12822      | 10|
+| Kyber1024| KEM        |    9852         | 5|
+| Kyber1024| KEM        |   18102          |10 |
+| **Kyber768 X25519 Hybrid** | KEM |   **7164**   | 5|
+| Kyber768 X25519 Hybrid | KEM |   13174   |10 |
+
+Since we can set the Sphinx packet payload to any size we want,
+we have a lot of control over it's overhead ratio.
+
+## Noise overhead
+
+* Our Noise transport messages incure a 16 byte overhead byte we use ChaCha20-Poly1305.
+
+* Currently we have set the maximum Noise message size to 1300000 bytes.
+
+## Additional protocol overheads
+
+| Name | Overhead |
+| :--- | :----:   |
+| IPv4 | 20 bytes |
+| UDP | 8 bytes |
+| QUIC v1 | 20 bytes |
+| appox. TLS | 29 bytes |
+| TOTAL: | 77 |
+
+1474 (IP Packet) - 20 (IPv4) - 8 (UDP) - 20 (QUIC) - 29 (TLS) = 1397 bytes
+
+
+## Sphinx + QUIC overheads formula
+
+We calculate the overhead ratio for
+transmitting application payloads over Sphinx/QUIC/UDP/IPv4.
+
+1. `p` is the Sphinx payload size
+2. `h` is the Sphinx header size
+3. `s` is the Sphinx packet size, which is `p + h`
+4. `q` is the overhead impose by QUIC/UDP/IPv4 (which is 77 bytes)
+5. `i` is the payload size that can be transported in single QUIC packet (1397 bytes)
+
+The Sphinx packet will be divided into many QUIC packets. Let N equal the number of QUIC
+packets needed to transport a Sphinx packet:
+
+`N = ceil(s / i)`
+
+The total overhead for transmitting the Sphinx packet over IP/UDP/QUIC would then be:
+
+`N * q`
+
+Therefore, the bandwidth overhead ratio can be calculated as the total overhead divided by the total data transmitted. This will give us:
+
+```
+Bandwidth Overhead Ratio = (N * q) / (s + (N * q))
+```

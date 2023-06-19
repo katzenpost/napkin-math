@@ -109,7 +109,8 @@ we have a lot of control over it's overhead ratio.
 
 * Our Noise transport messages incure a 16 byte overhead byte we use ChaCha20-Poly1305.
 
-* Currently we have set the maximum Noise message size to 1300000 bytes.
+* Currently we have set the maximum Noise message size to 1300000 bytes. On principle
+we will always set our Noise message size big enough to encapsulate our Sphinx packets.
 
 ## Additional protocol overheads
 
@@ -118,11 +119,8 @@ we have a lot of control over it's overhead ratio.
 | IPv4 | 20 bytes |
 | UDP | 8 bytes |
 | QUIC v1 | 20 bytes |
-| appox. TLS | 29 bytes |
-| TOTAL: | 77 |
-
-1474 (IP Packet) - 20 (IPv4) - 8 (UDP) - 20 (QUIC) - 29 (TLS) = 1397 bytes
-
+| appox. TLS | 32 bytes |
+| TOTAL: | 80 |
 
 ## Sphinx + QUIC overheads formula
 
@@ -130,10 +128,10 @@ We calculate the overhead ratio for
 transmitting application payloads over Sphinx/QUIC/UDP/IPv4.
 
 1. `p` is the Sphinx payload size
-2. `h` is the Sphinx header size
+2. `h` is the Sphinx header size + Noise overhead (16 bytes, see above)
 3. `s` is the Sphinx packet size, which is `p + h`
 4. `q` is the overhead impose by QUIC/UDP/IPv4 (which is 77 bytes)
-5. `i` is the payload size that can be transported in single QUIC packet (1397 bytes)
+5. `i` is the payload size that can be transported in single QUIC packet
 
 The Sphinx packet will be divided into many QUIC packets. Let N equal the number of QUIC
 packets needed to transport a Sphinx packet:
@@ -147,5 +145,15 @@ The total overhead for transmitting the Sphinx packet over IP/UDP/QUIC would the
 Therefore, the bandwidth overhead ratio can be calculated as the total overhead divided by the total data transmitted. This will give us:
 
 ```
+Bandwidth Overhead Ratio = Total Overhead / Total Data Transmitted
+
 Bandwidth Overhead Ratio = (N * q) / (s + (N * q))
 ```
+
+Let `t=q+i` be the size of our QUIC/UDP/IPv4 packets.
+We should grow the Sphinx payload size by multiples of `t`
+such that the Sphinx packet size is evenly divisible by `t`:
+```
+s mod t = 0
+```
+

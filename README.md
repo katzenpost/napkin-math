@@ -157,3 +157,35 @@ such that the Sphinx packet size is evenly divisible by `t`:
 s mod t = 0
 ```
 
+# Latency in signature schemes
+
+
+1. ed25519 + Spincs+ shake-256f ref impl
+
+```
+human@computer ~/code/katzenpost/core/crypto/sign/bench/ed25519sphincsplus (add_signature_benchmarks) $ CGO_CFLAGS_ALLOW=-DPARAMS=sphincs-shake-256f go test -bench=.
+goos: linux
+goarch: amd64
+pkg: github.com/katzenpost/katzenpost/core/crypto/sign/bench/ed25519sphincsplus
+cpu: 11th Gen Intel(R) Core(TM) i7-1165G7 @ 2.80GHz
+BenchmarkSign-8     	      4	336805352 ns/op
+BenchmarkVerify-8   	     84	 13665171 ns/op
+PASS
+ok  	github.com/katzenpost/katzenpost/core/crypto/sign/bench/ed25519sphincsplus	7.769s
+human@computer ~/code/katzenpost/core/crypto/sign/bench/ed25519sphincsplus (add_signature_benchmarks) $
+```
+
+2. ed25519 + Spincs+ haraka-256f ref impl
+
+```
+CGO_CFLAGS_ALLOW=-DPARAMS=sphincs-haraka-256f go test -bench=.
+goos: linux
+goarch: amd64
+pkg: github.com/katzenpost/katzenpost/core/crypto/sign/bench/ed25519sphincsplus
+cpu: 11th Gen Intel(R) Core(TM) i7-1165G7 @ 2.80GHz
+BenchmarkSign-8     	      4	324248455 ns/op
+BenchmarkVerify-8   	     86	 12765333 ns/op
+PASS
+ok  	github.com/katzenpost/katzenpost/core/crypto/sign/bench/ed25519sphincsplus	7.661s
+```
+

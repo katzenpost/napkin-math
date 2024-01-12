@@ -3,40 +3,6 @@
 
 ---
 
-# latency
-
-## network latency
-
-| average latency between mix nodes |
-| :---:                             |
-| 78 milliseconds                   |
-
-Let's assume a 78 millisecond average latency between mix nodes of the mix network.
-
-
-## poisson mix latency
-
-Sampling from poisson distributions happens for these various symbols mentioned
-in the Loopix paper:
-
-| Symbol | Description |
-| :---   | ---:        |
-| LambdaP / λP | client payload traffic rate |
-| LambdaD / λD | client drop decoy traffic rate |
-| LambdaL / λL | client loop decoy traffic rate |
-| Mu / μ  | the mean delay at each mix |
-| LambdaM | mix node loop decoy traffic rate |
-
-
-However for our calculation of latecy, all we care about is Mu:
-
-| Mu | average latency per hop | avgerage latency per 5 hops | rtt (10 hops) |
-| :---   | :---:                   | :---: | ---:                                |
-| 0.001 | 1s | 5s | 10s |
-| 0.002 | 487ms | 2.4s | 4.8s |
-| 0.0005 | 1.925s | 9.5s | 19s |
-
-
 ## noise latency
 
 | Noise protocol | nanoseconds/op | seconds/op |
@@ -122,39 +88,42 @@ we will always set our Noise message size big enough to encapsulate our Sphinx p
 | appox. TLS | 32 bytes |
 | TOTAL: | 80 |
 
+
+for ipv4 the QUIC payload size is 1354?
+
+
 ## Sphinx + QUIC overheads formula
+
+**Goal:** To ensure all QUIC packets are the same size
+and maxing out payload size.
+
 
 We calculate the overhead ratio for
 transmitting application payloads over Sphinx/QUIC/UDP/IPv4.
 
-1. `p` is the Sphinx payload size
-2. `h` is the Sphinx header size + Noise overhead (16 bytes, see above)
-3. `s` is the Sphinx packet size, which is `p + h`
-4. `q` is the overhead impose by QUIC/UDP/IPv4 (which is 77 bytes)
-5. `i` is the payload size that can be transported in single QUIC packet
+* `p` is the Sphinx payload size
+* `h` is the Sphinx header size
+* `s` is the Sphinx packet size, which is `p + h`
+* `n` is the Noise overhead
+* `m` is the Noise message size which is `s+n` 
+* `q` is the overhead impose by QUIC/UDP/IPv4
+* `i` is the payload size that can be transported in single QUIC packet
 
-The Sphinx packet will be divided into many QUIC packets. Let N equal the number of QUIC
-packets needed to transport a Sphinx packet:
+The Noise message will be divided into many QUIC packets. Let N equal the number of QUIC
+packets needed to transport a Noise message:
 
-`N = ceil(s / i)`
+`N = ceil(m / i)`
 
-The total overhead for transmitting the Sphinx packet over IP/UDP/QUIC would then be:
+The total overhead for transmitting the `p` *Sphinx payload* bytes over IPv4/UDP/QUIC would then be:
 
-`N * q`
+`(N * q) + n + h`
 
 Therefore, the bandwidth overhead ratio can be calculated as the total overhead divided by the total data transmitted. This will give us:
 
 ```
 Bandwidth Overhead Ratio = Total Overhead / Total Data Transmitted
 
-Bandwidth Overhead Ratio = (N * q) / (s + (N * q))
-```
-
-Let `t=q+i` be the size of our QUIC/UDP/IPv4 packets.
-We should grow the Sphinx payload size by multiples of `t`
-such that the Sphinx packet size is evenly divisible by `t`:
-```
-s mod t = 0
+Bandwidth Overhead Ratio = '(s / p) + additional_neglible_overhead' 
 ```
 
 # Latency in signature schemes
